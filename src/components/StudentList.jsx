@@ -8,9 +8,12 @@ const StudentList = () => {
   ]);
   const [showModal, setShowModal] = useState(false);
   const [newStudent, setNewStudent] = useState({ name: '', class: '', age: '' });
+  const [successMessage, setSuccessMessage] = useState('');
 
   const handleDelete = (id) => {
     setStudents(prev => prev.filter(student => student.id !== id));
+    setSuccessMessage('🗑️ Đã xoá sinh viên thành công!');
+    setTimeout(() => setSuccessMessage(''), 3000);
   };
 
   const handleAddStudent = () => {
@@ -23,7 +26,13 @@ const StudentList = () => {
 
   return (
     <div className="max-w-4xl mx-auto mt-12 p-6 bg-gradient-to-br from-blue-50 to-white rounded-3xl shadow-xl">
-      <h2 className="text-4xl font-bold mb-8 text-center text-blue-800">📚 Danh sách sinh viên</h2>
+      <h2 className="text-4xl font-bold mb-4 text-center text-blue-800">📚 Danh sách sinh viên</h2>
+
+      {successMessage && (
+        <div className="mb-4 p-4 text-green-800 bg-green-100 border border-green-300 rounded-lg text-center font-medium">
+          {successMessage}
+        </div>
+      )}
 
       <div className="flex justify-end mb-4">
         <button
