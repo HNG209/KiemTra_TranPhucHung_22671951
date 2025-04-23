@@ -11,6 +11,7 @@ const StudentList = () => {
   const [editStudent, setEditStudent] = useState(null);
   const [successMessage, setSuccessMessage] = useState('');
   const [searchKeyword, setSearchKeyword] = useState('');
+  const [selectedClass, setSelectedClass] = useState('Tất cả');
 
   const handleDelete = (id) => {
     setStudents(prev => prev.filter(student => student.id !== id));
@@ -37,9 +38,13 @@ const StudentList = () => {
     setTimeout(() => setSuccessMessage(''), 3000);
   };
 
-  const filteredStudents = students.filter(student =>
-    student.name.toLowerCase().includes(searchKeyword.toLowerCase())
-  );
+  const classOptions = ['Tất cả', ...new Set(students.map(s => s.class))];
+
+  const filteredStudents = students.filter(student => {
+    const matchName = student.name.toLowerCase().includes(searchKeyword.toLowerCase());
+    const matchClass = selectedClass === 'Tất cả' || student.class === selectedClass;
+    return matchName && matchClass;
+  });
 
   return (
     <div className="max-w-4xl mx-auto mt-12 p-6 bg-gradient-to-br from-blue-50 to-white rounded-3xl shadow-xl">
@@ -51,14 +56,25 @@ const StudentList = () => {
         </div>
       )}
 
-      <div className="flex justify-between items-center mb-4">
+      <div className="flex flex-wrap justify-between items-center mb-4 gap-2">
         <input
           type="text"
           placeholder="🔍 Tìm theo tên sinh viên..."
-          className="w-1/2 p-2 border border-gray-300 rounded-xl"
+          className="w-full sm:w-[48%] p-2 border border-gray-300 rounded-xl"
           value={searchKeyword}
           onChange={(e) => setSearchKeyword(e.target.value)}
         />
+
+        <select
+          className="w-full sm:w-[30%] p-2 border border-gray-300 rounded-xl"
+          value={selectedClass}
+          onChange={(e) => setSelectedClass(e.target.value)}
+        >
+          {classOptions.map(cls => (
+            <option key={cls} value={cls}>{cls}</option>
+          ))}
+        </select>
+
         <button
           onClick={() => setShowModal(true)}
           className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-xl font-medium shadow"
