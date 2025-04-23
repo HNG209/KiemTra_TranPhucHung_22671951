@@ -8,6 +8,7 @@ const StudentList = () => {
   ]);
   const [showModal, setShowModal] = useState(false);
   const [newStudent, setNewStudent] = useState({ name: '', class: '', age: '' });
+  const [editStudent, setEditStudent] = useState(null);
   const [successMessage, setSuccessMessage] = useState('');
 
   const handleDelete = (id) => {
@@ -22,6 +23,17 @@ const StudentList = () => {
     setStudents([...students, { id: newId, ...newStudent, age: parseInt(newStudent.age) }]);
     setNewStudent({ name: '', class: '', age: '' });
     setShowModal(false);
+  };
+
+  const handleEditStudent = () => {
+    setStudents(prev =>
+      prev.map(student =>
+        student.id === editStudent.id ? { ...editStudent, age: parseInt(editStudent.age) } : student
+      )
+    );
+    setEditStudent(null);
+    setSuccessMessage('✏️ Đã cập nhật sinh viên thành công!');
+    setTimeout(() => setSuccessMessage(''), 3000);
   };
 
   return (
@@ -50,22 +62,30 @@ const StudentList = () => {
               <th className="px-6 py-4 text-left text-sm font-bold text-blue-900 uppercase tracking-wider">Tên</th>
               <th className="px-6 py-4 text-left text-sm font-bold text-blue-900 uppercase tracking-wider">Lớp</th>
               <th className="px-6 py-4 text-left text-sm font-bold text-blue-900 uppercase tracking-wider">Tuổi</th>
-              <th className="px-6 py-4 text-left text-sm font-bold text-blue-900 uppercase tracking-wider">Hành động</th>
+              <th className="px-6 py-4 text-center text-sm font-bold text-blue-900 uppercase tracking-wider">Hành động</th>
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-blue-50">
             {students.map(student => (
               <tr key={student.id} className="hover:bg-blue-50 transition">
-                <td className="px-6 py-4 text-gray-800 font-medium">{student.name}</td>
-                <td className="px-6 py-4 text-gray-700">{student.class}</td>
-                <td className="px-6 py-4 text-gray-700">{student.age}</td>
-                <td className="px-6 py-4">
-                  <button
-                    className="bg-red-500 hover:bg-red-600 text-white font-semibold px-4 py-2 rounded-xl text-sm shadow-sm transition"
-                    onClick={() => handleDelete(student.id)}
-                  >
-                    Xoá
-                  </button>
+                <td className="px-6 py-4 text-gray-800 font-medium text-left">{student.name}</td>
+                <td className="px-6 py-4 text-gray-700 text-left">{student.class}</td>
+                <td className="px-6 py-4 text-gray-700 text-left">{student.age}</td>
+                <td className="px-6 py-4 text-center">
+                  <div className="inline-flex gap-2">
+                    <button
+                      className="bg-yellow-400 hover:bg-yellow-500 text-white font-semibold px-4 py-2 rounded-xl text-sm shadow-sm transition"
+                      onClick={() => setEditStudent(student)}
+                    >
+                      Sửa
+                    </button>
+                    <button
+                      className="bg-red-500 hover:bg-red-600 text-white font-semibold px-4 py-2 rounded-xl text-sm shadow-sm transition"
+                      onClick={() => handleDelete(student.id)}
+                    >
+                      Xoá
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}
@@ -78,43 +98,45 @@ const StudentList = () => {
         </table>
       </div>
 
-      {showModal && (
+      {(showModal || editStudent) && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
           <div className="bg-white p-6 rounded-2xl shadow-lg w-96">
-            <h3 className="text-xl font-bold mb-4 text-blue-700">Thêm sinh viên mới</h3>
+            <h3 className="text-xl font-bold mb-4 text-blue-700">
+              {editStudent ? 'Cập nhật sinh viên' : 'Thêm sinh viên mới'}
+            </h3>
             <input
               type="text"
               placeholder="Tên"
               className="w-full mb-3 p-2 border border-gray-300 rounded-lg"
-              value={newStudent.name}
-              onChange={(e) => setNewStudent({ ...newStudent, name: e.target.value })}
+              value={editStudent ? editStudent.name : newStudent.name}
+              onChange={(e) => editStudent ? setEditStudent({ ...editStudent, name: e.target.value }) : setNewStudent({ ...newStudent, name: e.target.value })}
             />
             <input
               type="text"
               placeholder="Lớp"
               className="w-full mb-3 p-2 border border-gray-300 rounded-lg"
-              value={newStudent.class}
-              onChange={(e) => setNewStudent({ ...newStudent, class: e.target.value })}
+              value={editStudent ? editStudent.class : newStudent.class}
+              onChange={(e) => editStudent ? setEditStudent({ ...editStudent, class: e.target.value }) : setNewStudent({ ...newStudent, class: e.target.value })}
             />
             <input
               type="number"
               placeholder="Tuổi"
               className="w-full mb-4 p-2 border border-gray-300 rounded-lg"
-              value={newStudent.age}
-              onChange={(e) => setNewStudent({ ...newStudent, age: e.target.value })}
+              value={editStudent ? editStudent.age : newStudent.age}
+              onChange={(e) => editStudent ? setEditStudent({ ...editStudent, age: e.target.value }) : setNewStudent({ ...newStudent, age: e.target.value })}
             />
             <div className="flex justify-end gap-2">
               <button
-                onClick={() => setShowModal(false)}
+                onClick={() => { editStudent ? setEditStudent(null) : setShowModal(false); }}
                 className="bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded-lg"
               >
                 Huỷ
               </button>
               <button
-                onClick={handleAddStudent}
+                onClick={editStudent ? handleEditStudent : handleAddStudent}
                 className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg"
               >
-                Thêm
+                {editStudent ? 'Cập nhật' : 'Thêm'}
               </button>
             </div>
           </div>
