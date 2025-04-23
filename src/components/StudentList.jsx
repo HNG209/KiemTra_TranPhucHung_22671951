@@ -1,17 +1,21 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 const StudentList = () => {
-  const [students, setStudents] = useState([
-    { id: 1, name: 'Nguyen Van A', class: '10A1', age: 16 },
-    { id: 2, name: 'Tran Thi B', class: '10A2', age: 17 },
-    { id: 3, name: 'Le Van C', class: '11B1', age: 18 },
-  ]);
+  // Retrieve the stored students list from localStorage, or default to an empty array
+  const storedStudents = JSON.parse(localStorage.getItem('students')) || [];
+  
+  const [students, setStudents] = useState(storedStudents);
   const [showModal, setShowModal] = useState(false);
   const [newStudent, setNewStudent] = useState({ name: '', class: '', age: '' });
   const [editStudent, setEditStudent] = useState(null);
   const [successMessage, setSuccessMessage] = useState('');
   const [searchKeyword, setSearchKeyword] = useState('');
   const [selectedClass, setSelectedClass] = useState('Tất cả');
+
+  useEffect(() => {
+    // Store the students list in localStorage whenever it changes
+    localStorage.setItem('students', JSON.stringify(students));
+  }, [students]);
 
   const handleDelete = (id) => {
     setStudents(prev => prev.filter(student => student.id !== id));
