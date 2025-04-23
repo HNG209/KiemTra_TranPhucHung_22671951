@@ -6,14 +6,34 @@ const StudentList = () => {
     { id: 2, name: 'Tran Thi B', class: '10A2', age: 17 },
     { id: 3, name: 'Le Van C', class: '11B1', age: 18 },
   ]);
+  const [showModal, setShowModal] = useState(false);
+  const [newStudent, setNewStudent] = useState({ name: '', class: '', age: '' });
 
   const handleDelete = (id) => {
     setStudents(prev => prev.filter(student => student.id !== id));
   };
 
+  const handleAddStudent = () => {
+    if (!newStudent.name || !newStudent.class || !newStudent.age) return;
+    const newId = students.length > 0 ? students[students.length - 1].id + 1 : 1;
+    setStudents([...students, { id: newId, ...newStudent, age: parseInt(newStudent.age) }]);
+    setNewStudent({ name: '', class: '', age: '' });
+    setShowModal(false);
+  };
+
   return (
     <div className="max-w-4xl mx-auto mt-12 p-6 bg-gradient-to-br from-blue-50 to-white rounded-3xl shadow-xl">
       <h2 className="text-4xl font-bold mb-8 text-center text-blue-800">📚 Danh sách sinh viên</h2>
+
+      <div className="flex justify-end mb-4">
+        <button
+          onClick={() => setShowModal(true)}
+          className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-xl font-medium shadow"
+        >
+          ➕ Thêm sinh viên
+        </button>
+      </div>
+
       <div className="overflow-hidden rounded-xl border border-blue-200 shadow">
         <table className="min-w-full divide-y divide-blue-100">
           <thead className="bg-blue-200">
@@ -48,6 +68,49 @@ const StudentList = () => {
           </tbody>
         </table>
       </div>
+
+      {showModal && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className="bg-white p-6 rounded-2xl shadow-lg w-96">
+            <h3 className="text-xl font-bold mb-4 text-blue-700">Thêm sinh viên mới</h3>
+            <input
+              type="text"
+              placeholder="Tên"
+              className="w-full mb-3 p-2 border border-gray-300 rounded-lg"
+              value={newStudent.name}
+              onChange={(e) => setNewStudent({ ...newStudent, name: e.target.value })}
+            />
+            <input
+              type="text"
+              placeholder="Lớp"
+              className="w-full mb-3 p-2 border border-gray-300 rounded-lg"
+              value={newStudent.class}
+              onChange={(e) => setNewStudent({ ...newStudent, class: e.target.value })}
+            />
+            <input
+              type="number"
+              placeholder="Tuổi"
+              className="w-full mb-4 p-2 border border-gray-300 rounded-lg"
+              value={newStudent.age}
+              onChange={(e) => setNewStudent({ ...newStudent, age: e.target.value })}
+            />
+            <div className="flex justify-end gap-2">
+              <button
+                onClick={() => setShowModal(false)}
+                className="bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded-lg"
+              >
+                Huỷ
+              </button>
+              <button
+                onClick={handleAddStudent}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg"
+              >
+                Thêm
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
