@@ -10,6 +10,7 @@ const StudentList = () => {
   const [newStudent, setNewStudent] = useState({ name: '', class: '', age: '' });
   const [editStudent, setEditStudent] = useState(null);
   const [successMessage, setSuccessMessage] = useState('');
+  const [searchKeyword, setSearchKeyword] = useState('');
 
   const handleDelete = (id) => {
     setStudents(prev => prev.filter(student => student.id !== id));
@@ -36,6 +37,10 @@ const StudentList = () => {
     setTimeout(() => setSuccessMessage(''), 3000);
   };
 
+  const filteredStudents = students.filter(student =>
+    student.name.toLowerCase().includes(searchKeyword.toLowerCase())
+  );
+
   return (
     <div className="max-w-4xl mx-auto mt-12 p-6 bg-gradient-to-br from-blue-50 to-white rounded-3xl shadow-xl">
       <h2 className="text-4xl font-bold mb-4 text-center text-blue-800">📚 Danh sách sinh viên</h2>
@@ -46,7 +51,14 @@ const StudentList = () => {
         </div>
       )}
 
-      <div className="flex justify-end mb-4">
+      <div className="flex justify-between items-center mb-4">
+        <input
+          type="text"
+          placeholder="🔍 Tìm theo tên sinh viên..."
+          className="w-1/2 p-2 border border-gray-300 rounded-xl"
+          value={searchKeyword}
+          onChange={(e) => setSearchKeyword(e.target.value)}
+        />
         <button
           onClick={() => setShowModal(true)}
           className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-xl font-medium shadow"
@@ -66,7 +78,7 @@ const StudentList = () => {
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-blue-50">
-            {students.map(student => (
+            {filteredStudents.map(student => (
               <tr key={student.id} className="hover:bg-blue-50 transition">
                 <td className="px-6 py-4 text-gray-800 font-medium text-left">{student.name}</td>
                 <td className="px-6 py-4 text-gray-700 text-left">{student.class}</td>
@@ -89,9 +101,9 @@ const StudentList = () => {
                 </td>
               </tr>
             ))}
-            {students.length === 0 && (
+            {filteredStudents.length === 0 && (
               <tr>
-                <td colSpan="4" className="text-center py-8 text-gray-500 italic">Không có sinh viên nào.</td>
+                <td colSpan="4" className="text-center py-8 text-gray-500 italic">Không có sinh viên nào khớp.</td>
               </tr>
             )}
           </tbody>
