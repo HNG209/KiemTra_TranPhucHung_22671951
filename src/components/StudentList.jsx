@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import StudentItem from './StudentItem';
 
 const StudentList = () => {
-  // Retrieve the stored students list from localStorage, or default to an empty array
-  const storedStudents = JSON.parse(localStorage.getItem('students')) || [];
-  
-  const [students, setStudents] = useState(storedStudents);
+  const [students, setStudents] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [newStudent, setNewStudent] = useState({ name: '', class: '', age: '' });
   const [editStudent, setEditStudent] = useState(null);
@@ -12,13 +10,23 @@ const StudentList = () => {
   const [searchKeyword, setSearchKeyword] = useState('');
   const [selectedClass, setSelectedClass] = useState('Tất cả');
 
+  // Lấy danh sách sinh viên từ localStorage khi component mount
   useEffect(() => {
-    // Store the students list in localStorage whenever it changes
-    localStorage.setItem('students', JSON.stringify(students));
-  }, [students]);
+    const storedStudents = JSON.parse(localStorage.getItem('students'));
+    if (storedStudents) {
+      setStudents(storedStudents);
+    }
+  }, []);
+
+  // Hàm cập nhật localStorage mỗi khi danh sách sinh viên thay đổi
+  const updateLocalStorage = (updatedStudents) => {
+    localStorage.setItem('students', JSON.stringify(updatedStudents));
+    setStudents(updatedStudents);
+  };
 
   const handleDelete = (id) => {
-    setStudents(prev => prev.filter(student => student.id !== id));
+    const updatedStudents = students.filter(student => student.id !== id);
+    updateLocalStorage(updatedStudents);
     setSuccessMessage('🗑️ Đã xoá sinh viên thành công!');
     setTimeout(() => setSuccessMessage(''), 3000);
   };
@@ -26,17 +34,19 @@ const StudentList = () => {
   const handleAddStudent = () => {
     if (!newStudent.name || !newStudent.class || !newStudent.age) return;
     const newId = students.length > 0 ? students[students.length - 1].id + 1 : 1;
-    setStudents([...students, { id: newId, ...newStudent, age: parseInt(newStudent.age) }]);
+    const updatedStudents = [...students, { id: newId, ...newStudent, age: parseInt(newStudent.age) }];
+    updateLocalStorage(updatedStudents);
     setNewStudent({ name: '', class: '', age: '' });
     setShowModal(false);
+    setSuccessMessage('✔️ Thêm sinh viên thành công!');
+    setTimeout(() => setSuccessMessage(''), 3000);
   };
 
   const handleEditStudent = () => {
-    setStudents(prev =>
-      prev.map(student =>
-        student.id === editStudent.id ? { ...editStudent, age: parseInt(editStudent.age) } : student
-      )
+    const updatedStudents = students.map(student =>
+      student.id === editStudent.id ? { ...editStudent, age: parseInt(editStudent.age) } : student
     );
+    updateLocalStorage(updatedStudents);
     setEditStudent(null);
     setSuccessMessage('✏️ Đã cập nhật sinh viên thành công!');
     setTimeout(() => setSuccessMessage(''), 3000);
@@ -99,27 +109,12 @@ const StudentList = () => {
           </thead>
           <tbody className="bg-white divide-y divide-blue-50">
             {filteredStudents.map(student => (
-              <tr key={student.id} className="hover:bg-blue-50 transition">
-                <td className="px-6 py-4 text-gray-800 font-medium text-left">{student.name}</td>
-                <td className="px-6 py-4 text-gray-700 text-left">{student.class}</td>
-                <td className="px-6 py-4 text-gray-700 text-left">{student.age}</td>
-                <td className="px-6 py-4 text-center">
-                  <div className="inline-flex gap-2">
-                    <button
-                      className="bg-yellow-400 hover:bg-yellow-500 text-white font-semibold px-4 py-2 rounded-xl text-sm shadow-sm transition"
-                      onClick={() => setEditStudent(student)}
-                    >
-                      Sửa
-                    </button>
-                    <button
-                      className="bg-red-500 hover:bg-red-600 text-white font-semibold px-4 py-2 rounded-xl text-sm shadow-sm transition"
-                      onClick={() => handleDelete(student.id)}
-                    >
-                      Xoá
-                    </button>
-                  </div>
-                </td>
-              </tr>
+              <StudentItem
+                key={student.id}
+                student={student}
+                onDelete={handleDelete}
+                onEdit={setEditStudent}
+              />
             ))}
             {filteredStudents.length === 0 && (
               <tr>
